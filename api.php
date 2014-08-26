@@ -15,12 +15,13 @@ function getRequest( $key , $default = '' ) {
 }
 
 $wikigrokdb = new mysqli( $wikigrokdb['host'], $wikigrokdb['user'], $wikigrokdb['pass'], $wikigrokdb['dbname'] );
-$action = getRequest( 'action' , '' ) ;
-$item = intval( getRequest( 'item' , 0 ) ) ;
+$action = getRequest( 'action' , '' );
+$item = intval( getRequest( 'item' , 0 ) );
+$callback = getRequest( 'callback' );
 
 $out = array( 'status' => 'OK' ) ;
 
-if ( $action == 'get_potential_occupations' ) {
+if ( $action === 'get_potential_occupations' ) {
 
         if ( $item ) {
 				$sql = "SELECT occupation FROM potential_occupation WHERE status IS NULL AND item = $item LIMIT 1";
@@ -40,4 +41,10 @@ if ( $action == 'get_potential_occupations' ) {
 	$out['status'] = "Unknown action $action" ;
 }
 
-print json_encode ( $out ) ;
+$json = json_encode( $out );
+// Use callback if JSONP request
+if ( $callback ) { 
+	print $callback . '(' . $json . ');';
+} else { 
+	print $json,"\n"; 
+}
