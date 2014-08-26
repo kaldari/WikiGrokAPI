@@ -9,9 +9,14 @@ require_once( '../config.inc.php' );
 header( 'Content-type: application/json' );
 //header('Content-type: text/plain'); // FOR TESTING
 
+function getRequest( $key , $default = '' ) {
+	if ( isset ( $_REQUEST[$key] ) ) return str_replace ( "\'" , "'" , $_REQUEST[$key] );
+	return $default;
+}
+
 $wikigrokdb = new mysqli( $wikigrokdb['host'], $wikigrokdb['user'], $wikigrokdb['pass'], $wikigrokdb['dbname'] );
-$action = get_request( 'action' , '' ) ;
-$item = intval( get_request( 'item' , 0 ) ) ;
+$action = getRequest( 'action' , '' ) ;
+$item = intval( getRequest( 'item' , 0 ) ) ;
 
 $out = array( 'status' => 'OK' ) ;
 
