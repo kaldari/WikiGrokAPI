@@ -10,7 +10,7 @@ header( 'Content-type: application/json' );
 //header('Content-type: text/plain'); // FOR TESTING
 
 function getRequest( $key , $default = '' ) {
-	if ( isset ( $_REQUEST[$key] ) ) return str_replace ( "\'" , "'" , $_REQUEST[$key] );
+	if ( isset ( $_REQUEST[$key] ) ) return str_replace( "\'" , "'" , $_REQUEST[$key] );
 	return $default;
 }
 
@@ -23,6 +23,7 @@ $out = array( 'status' => 'OK' ) ;
 if ( $action == 'get_potential_occupations' ) {
 
         if ( $item ) {
+				$item = str_replace( 'Q' , '' , $item );
                 $sql = "SELECT occupation FROM potential_occupation WHERE status IS NULL AND item = $item LIMIT 1";
                 $result = $wikigrokdb->query( $sql );
                 if ( !$result ) die( 'There was an error running the query [' . $wikigrokdb->error . '] '.$sql );
