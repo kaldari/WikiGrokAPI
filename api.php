@@ -28,9 +28,9 @@ if ( $action == 'get_potential_occupations' ) {
                 if ( !$result ) die( 'There was an error running the query [' . $wikigrokdb->error . '] '.$sql );
                 $x = $result->fetch_array();
                 if ( $x ) {
-                        $out['data'] = "$x[0]";
+                        $out['occupations'] = "$x[0]";
                 } else {
-                        $out['data'] = false;
+                        $out['occupations'] = false;
                 }
         } else {
                 $out['status'] = 'Invalid input';
