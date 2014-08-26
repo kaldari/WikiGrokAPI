@@ -46,5 +46,5 @@ $json = json_encode( $out );
 if ( $callback ) { 
 	print $callback . '(' . $json . ');';
 } else { 
-	print $json,"\n"; 
+	print $json . "\n"; 
 }
