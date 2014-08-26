@@ -34,7 +34,7 @@ if ( $action == 'get_potential_occupations' ) {
                         $out['occupations'] = false;
                 }
         } else {
-                $out['status'] = 'Invalid input';
+                $out['status'] = "Invalid item input: $item";
         }
 
 } else {
