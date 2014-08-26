@@ -23,8 +23,7 @@ $out = array( 'status' => 'OK' ) ;
 if ( $action == 'get_potential_occupations' ) {
 
         if ( $item ) {
-				$item = str_replace( 'Q' , '' , $item );
-                $sql = "SELECT occupation FROM potential_occupation WHERE status IS NULL AND item = $item LIMIT 1";
+				$sql = "SELECT occupation FROM potential_occupation WHERE status IS NULL AND item = $item LIMIT 1";
                 $result = $wikigrokdb->query( $sql );
                 if ( !$result ) die( 'There was an error running the query [' . $wikigrokdb->error . '] '.$sql );
                 $x = $result->fetch_array();
