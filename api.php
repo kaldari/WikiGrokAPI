@@ -50,7 +50,7 @@ if ( $action === 'get_potential_occupations' ) {
 	$correct = intval( getRequest( 'correct', -1 ) );
 
 	if ( $item_id && $occupation_id && ( $correct === 0 || $correct === 1 ) ) {
-		$sql = "INSERT INTO `occupation_log` (`item_id`, `item`, `occupation_id`, `occupation`, `page_name`, `correct`, `timestamp`) VALUES ($item_id, $item, $occupation_id, $occupation, $page_name, $correct, CURRENT_TIMESTAMP)";
+		$sql = "INSERT INTO `occupation_log` (`item_id`, `item`, `occupation_id`, `occupation`, `page_name`, `correct`, `timestamp`) VALUES ('$item_id', '$item', '$occupation_id', '$occupation', '$page_name', $correct, CURRENT_TIMESTAMP)";
 		$result = $wikigrokdb->query( $sql );
 		if ( !$result ) die( 'There was an error running the query [' . $candidatesdb->error . '] '.$sql );
 	}
