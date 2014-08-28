@@ -42,15 +42,15 @@ if ( $action === 'get_potential_occupations' ) {
 
 	$wikigrokdb = new mysqli( $wikigrokdb['host'], $wikigrokdb['user'], $wikigrokdb['pass'], $wikigrokdb['dbname'] );
 
-	$item_id = $wikigrokdb->real_escape_string( getRequest( 'item_id' ) );
-	$item = $wikigrokdb->real_escape_string( getRequest( 'item' ) );
+	$subject_id = $wikigrokdb->real_escape_string( getRequest( 'subject_id' ) );
+	$subject = $wikigrokdb->real_escape_string( getRequest( 'subject' ) );
 	$occupation_id = $wikigrokdb->real_escape_string( getRequest( 'occupation_id' ) );
 	$occupation = $wikigrokdb->real_escape_string( getRequest( 'occupation' ) );
 	$page_name = $wikigrokdb->real_escape_string( getRequest( 'page_name' ) );
 	$correct = intval( getRequest( 'correct', -1 ) );
 
-	if ( $item_id && $occupation_id && ( $correct === 0 || $correct === 1 ) ) {
-		$sql = "INSERT INTO `occupation_log` (`item_id`, `item`, `occupation_id`, `occupation`, `page_name`, `correct`, `timestamp`) VALUES ('$item_id', '$item', '$occupation_id', '$occupation', '$page_name', $correct, CURRENT_TIMESTAMP)";
+	if ( $subject_id && $occupation_id && ( $correct === 0 || $correct === 1 ) ) {
+		$sql = "INSERT INTO `occupation_log` (`subject_id`, `subject`, `occupation_id`, `occupation`, `page_name`, `correct`, `timestamp`) VALUES ('$subject_id', '$subject', '$occupation_id', '$occupation', '$page_name', $correct, CURRENT_TIMESTAMP)";
 		$result = $wikigrokdb->query( $sql );
 		if ( !$result ) die( 'There was an error running the query [' . $candidatesdb->error . '] '.$sql );
 	}
