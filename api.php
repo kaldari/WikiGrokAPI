@@ -48,9 +48,10 @@ if ( $action === 'get_potential_occupations' ) {
 	$occupation = $wikigrokdb->real_escape_string( getRequest( 'occupation' ) );
 	$page_name = $wikigrokdb->real_escape_string( getRequest( 'page_name' ) );
 	$correct = intval( getRequest( 'correct', -1 ) );
+	$source = $wikigrokdb->real_escape_string( getRequest( 'source' ) );
 
 	if ( $subject_id && $occupation_id && ( $correct === 0 || $correct === 1 ) ) {
-		$sql = "INSERT INTO `claim_log` (`subject_id`, `subject`, `claim_property_id`, `claim_property`, `claim_value_id`, `claim_value`, `page_name`, `correct`, `timestamp`) VALUES ('$subject_id', '$subject', 'P106', 'occupation', '$occupation_id', '$occupation', '$page_name', $correct, CURRENT_TIMESTAMP)";
+		$sql = "INSERT INTO `claim_log` (`subject_id`, `subject`, `claim_property_id`, `claim_property`, `claim_value_id`, `claim_value`, `page_name`, `correct`, `source`, `timestamp`) VALUES ('$subject_id', '$subject', 'P106', 'occupation', '$occupation_id', '$occupation', '$page_name', $correct, '$source', CURRENT_TIMESTAMP)";
 		$result = $wikigrokdb->query( $sql );
 		if ( !$result ) die( 'There was an error running the query [' . $candidatesdb->error . '] '.$sql );
 	}
