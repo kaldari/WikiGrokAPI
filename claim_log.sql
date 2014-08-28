@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS `claim_log` (
   `claim_value` varchar(128) DEFAULT NULL,
   `page_name` varchar(255) DEFAULT NULL,
   `correct` tinyint(1) DEFAULT NULL,
+  `source` varchar(32) DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   KEY `subject_id` (`subject_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
