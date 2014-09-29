@@ -6,15 +6,14 @@ ini_set( 'memory_limit', '200M' );
 
 require_once( '../config.inc.php' );
 
-header( 'Content-type: application/json' );
-//header('Content-type: text/plain'); // FOR TESTING
+$candidatesdb = new mysqli( $candidatesdb['host'], $candidatesdb['user'], $candidatesdb['pass'], $candidatesdb['dbname'] );
 
 function getRequest( $key , $default = '' ) {
 	if ( isset ( $_REQUEST[$key] ) ) return str_replace( "\'" , "'" , $_REQUEST[$key] );
 	return $default;
 }
 
-function getPotentialOccupations( $item ) {
+function getPotentialOccupations( $item, $db ) {
 	$sql = "SELECT occupation FROM potential_occupation WHERE status IS NULL AND item = $item LIMIT 1";
 	$result = $candidatesdb->query( $sql );
 	if ( !$result ) die( 'There was an error running the query [' . $candidatesdb->error . '] '.$sql );
@@ -30,8 +29,6 @@ $action = getRequest( 'action' , '' );
 $callback = getRequest( 'callback' );
 
 $out = array( 'status' => 'OK' ) ;
-
-$candidatesdb = new mysqli( $candidatesdb['host'], $candidatesdb['user'], $candidatesdb['pass'], $candidatesdb['dbname'] );
 
 switch ( $action ) {
 
@@ -68,7 +65,9 @@ switch ( $action ) {
 		$out['status'] = "Unknown action $action" ;
 }
 
-// Output the results
+/* Output the results */
+header( 'Content-type: application/json' );
+//header('Content-type: text/plain'); // FOR TESTING
 $json = json_encode( $out );
 // Use callback if JSONP request
 if ( $callback ) { 
