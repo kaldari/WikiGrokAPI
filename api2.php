@@ -42,7 +42,7 @@ if ( $action = 'record_answer' ) {
 	if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
 		$host = $wikigrokdb->real_escape_string( parse_url( $_SERVER['HTTP_REFERER'], PHP_URL_HOST ) );
 	} else {
-		$host = 'none'
+		$host = 'none';
 	}
 
 	if ( $subject_id && $occupation_id && ( $correct === 0 || $correct === 1 ) ) {
