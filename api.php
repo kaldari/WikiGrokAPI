@@ -6,14 +6,13 @@ ini_set( 'memory_limit', '200M' );
 
 require_once( '../config.inc.php' );
 
-$candidatesdb = new mysqli( $candidatesdb['host'], $candidatesdb['user'], $candidatesdb['pass'], $candidatesdb['dbname'] );
-
 function getRequest( $key , $default = '' ) {
 	if ( isset ( $_REQUEST[$key] ) ) return str_replace( "\'" , "'" , $_REQUEST[$key] );
 	return $default;
 }
 
 function getPotentialOccupations( $item ) {
+	$candidatesdb = new mysqli( $candidatesdb['host'], $candidatesdb['user'], $candidatesdb['pass'], $candidatesdb['dbname'] );
 	$sql = "SELECT occupation FROM potential_occupation WHERE status IS NULL AND item = $item LIMIT 1";
 	$result = $candidatesdb->query( $sql );
 	if ( !$result ) die( 'There was an error running the query [' . $candidatesdb->error . '] '.$sql );
