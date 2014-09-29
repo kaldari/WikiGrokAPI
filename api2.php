@@ -39,7 +39,11 @@ if ( $action = 'record_answer' ) {
 	$correct = intval( getRequest( 'correct', -1 ) );
 	$user_id = intval( getRequest( 'user_id', 0 ) );
 	$source = $wikigrokdb->real_escape_string( getRequest( 'source' ) );
-	$host = $wikigrokdb->real_escape_string( parse_url( $_SERVER['HTTP_REFERER'], PHP_URL_HOST ) );
+	if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
+		$host = $wikigrokdb->real_escape_string( parse_url( $_SERVER['HTTP_REFERER'], PHP_URL_HOST ) );
+	} else {
+		$host = 'none'
+	}
 
 	if ( $subject_id && $occupation_id && ( $correct === 0 || $correct === 1 ) ) {
 		$sql = "INSERT INTO `claim_log` (`subject_id`, `subject`, `claim_property_id`, `claim_property`, `claim_value_id`, `claim_value`, `page_name`, `correct`, `user_id`, `source`, `host`, `timestamp`) VALUES ('$subject_id', '$subject', 'P106', 'occupation', '$occupation_id', '$occupation', '$page_name', $correct, $user_id, '$source', '$host', CURRENT_TIMESTAMP)";
