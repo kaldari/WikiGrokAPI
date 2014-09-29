@@ -28,7 +28,7 @@ $callback = getRequest( 'callback' );
 
 $out = array( 'status' => 'OK' ) ;
 
-if ( $action = 'record_answer' ) {
+if ( $action === 'record_answer' ) {
 	$wikigrokdb = new mysqli( $wikigrokdb['host'], $wikigrokdb['user'], $wikigrokdb['pass'], $wikigrokdb['dbname'] );
 
 	$subject_id = $wikigrokdb->real_escape_string( getRequest( 'subject_id' ) );
@@ -69,9 +69,12 @@ if ( $action = 'record_answer' ) {
 }
 
 /* Output the results */
+
 header( 'Content-type: application/json' );
-//header('Content-type: text/plain'); // FOR TESTING
+//header('Content-type: text/plain'); // for testing
+
 $json = json_encode( $out );
+
 // Use callback if JSONP request
 if ( $callback ) { 
 	print $callback . '(' . $json . ');';
