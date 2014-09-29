@@ -13,7 +13,7 @@ function getRequest( $key , $default = '' ) {
 	return $default;
 }
 
-function getPotentialOccupations( $item, $db ) {
+function getPotentialOccupations( $item ) {
 	$sql = "SELECT occupation FROM potential_occupation WHERE status IS NULL AND item = $item LIMIT 1";
 	$result = $candidatesdb->query( $sql );
 	if ( !$result ) die( 'There was an error running the query [' . $candidatesdb->error . '] '.$sql );
