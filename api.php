@@ -12,6 +12,11 @@ function getRequest( $key , $default = '' ) {
 }
 
 function getPotentialOccupations( $item, $db ) {
+	// The possible statuses for potential_occupation entries are NULL, DEL, NO, and DONE.
+	// NULL: No decisions have been made about occupation claims for this person
+	// DEL: Item has problems (article deleted, etc.)
+	// NO: None of the potential occupations are appropriate
+	// DONE: Occupations have been set for this person in WikiData via WikiData Game
 	$sql = "SELECT occupation FROM potential_occupation WHERE status IS NULL AND item = $item LIMIT 1";
 	$result = $db->query( $sql );
 	if ( !$result ) die( 'There was an error running the query [' . $db->error . '] '.$sql );
