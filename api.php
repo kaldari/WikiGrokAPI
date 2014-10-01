@@ -11,6 +11,12 @@ function getRequest( $key , $default = '' ) {
 	return $default;
 }
 
+/**
+ * Get potential occupations for a person
+ * @param int $item The Wikidata ID for the person (without Q)
+ * @param mysqli $db Connection to database storing candidate information
+ * @return string A comma-separated list of IDs for occupations in Wikidata (without the Q)
+ */
 function getPotentialOccupations( $item, $db ) {
 	// The possible statuses for potential_occupation entries are NULL, DEL, NO, and DONE.
 	// NULL: No decisions have been made about occupation claims for this person
@@ -21,11 +27,26 @@ function getPotentialOccupations( $item, $db ) {
 	$result = $db->query( $sql );
 	if ( !$result ) die( 'There was an error running the query [' . $db->error . '] '.$sql );
 	$x = $result->fetch_array();
-	if ( $x ) {
-		return $x[0];
-	} else {
-		return false;
-	}
+	return $x ? $x[0] : false;
+}
+
+/**
+ * Get a potential nationality for a person ('country of citizenship' in Wikidata)
+ * @param int $item The Wikidata ID for the person (without Q)
+ * @param mysqli $db Connection to database storing candidate information
+ * @return string A single ID for a country in Wikidata (without the Q), e.g. '145'
+ */
+function getPotentialNationality( $item, $db ) {
+	// The possible statuses for potential_nationality entries are NULL, DEL, YES, and NO.
+	// NULL: No decisions have been made about the nationality claim for this person
+	// DEL: Item has problems (article deleted, etc.)
+	// YES: The suggested nationality is correct
+	// NO: The suggested nationality is not correct
+	$sql = "SELECT nationality FROM potential_nationality WHERE status IS NULL AND item = $item LIMIT 1";
+	$result = $db->query( $sql );
+	if ( !$result ) die( 'There was an error running the query [' . $db->error . '] '.$sql );
+	$x = $result->fetch_array();
+	return $x ? $x[0] : false;
 }
 
 $action = getRequest( 'action' , '' );
@@ -65,7 +86,9 @@ if ( $action === 'record_answer' ) {
 			case 'get_potential_occupations':
 				$out['occupations'] = getPotentialOccupations( $item, $candidatesdb );
 				break;
-			// Put other get actions here
+			case 'get_potential_nationality':
+				$out['occupations'] = getPotentialNationality( $item, $candidatesdb );
+				break;
 			default:
 				$out['status'] = "Unknown action $action" ;
 		}
