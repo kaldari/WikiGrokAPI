@@ -11,3 +11,9 @@ Returns potential occupation claims for an item based on contents of Wikipedia a
 
 Example:<br/>
 https://tools.wmflabs.org/wikigrok/api.php?action=get_potential_occupations&item=508703
+
+### get_potential_nationality
+Returns a potential nationality claim for an item based on contents of Wikipedia article.
+
+Example:<br/>
+https://tools.wmflabs.org/wikigrok/api.php?action=get_potential_nationality&item=16999217
