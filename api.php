@@ -20,7 +20,7 @@ class WikiGrokApi {
 	/** @var string JSON output string */
 	protected $out;
 
-	function __construct() {
+	public function __construct() {
 		global $candidatesdb, $wikigrokdb;
 
 		$this->action = self::getRequest( 'action' );
