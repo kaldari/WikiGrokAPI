@@ -15,7 +15,7 @@ class WikiGrokApi {
 	protected $dbw;
 
 	/** @var string The action to execute */
-	protected $action;
+	public $action;
 
 	/** @var string JSON output string */
 	protected $out;
@@ -23,7 +23,7 @@ class WikiGrokApi {
 	function __construct() {
 		global $candidatesdb, $wikigrokdb;
 
-		$this->action = getRequest( 'action' );
+		$this->action = self::getRequest( 'action' );
 		$this->dbr = new mysqli(
 			$candidatesdb['host'],
 			$candidatesdb['user'],
@@ -45,7 +45,7 @@ class WikiGrokApi {
 	 * @param string $default Default value to return if none was specified in request
 	 * @return string The value of the API parameter (or default)
 	 */
-	public function getRequest( $key, $default = '' ) {
+	public static function getRequest( $key, $default = '' ) {
 		if ( isset ( $_REQUEST[$key] ) ) return str_replace( "\'" , "'" , $_REQUEST[$key] );
 		return $default;
 	}
@@ -57,7 +57,7 @@ class WikiGrokApi {
 	 * @param string $table Name of the database table containing the potential claims
 	 * @return string A comma-separated list of IDs for items in Wikidata (without the Q)
 	 */
-	public function getPotentialClaims( $item, $field, $table ) {
+	protected function getPotentialClaims( $item, $field, $table ) {
 		// Common claim statuses are NULL, DEL, YES, NO, and DONE.
 		// NULL: No decisions have been made about the potential claims
 		// DEL: Item has problems (article deleted, etc.)
@@ -71,17 +71,17 @@ class WikiGrokApi {
 		return $x ? $x[0] : false;
 	}
 
-	public function recordOccupationAnswer() {
-		$subject_id = $this->dbw->real_escape_string( getRequest( 'subject_id' ) );
-		$subject = $this->dbw->real_escape_string( getRequest( 'subject' ) );
+	protected function recordOccupationAnswer() {
+		$subject_id = $this->dbw->real_escape_string( self::getRequest( 'subject_id' ) );
+		$subject = $this->dbw->real_escape_string( self::getRequest( 'subject' ) );
 		$claim_property_id = 'P106';
 		$claim_property = 'occupation';
-		$occupation_id = $this->dbw->real_escape_string( getRequest( 'occupation_id' ) );
-		$occupation = $this->dbw->real_escape_string( getRequest( 'occupation' ) );
-		$page_name = $this->dbw->real_escape_string( getRequest( 'page_name' ) );
-		$correct = intval( getRequest( 'correct', -1 ) );
-		$user_id = intval( getRequest( 'user_id', 0 ) );
-		$source = $this->dbw->real_escape_string( getRequest( 'source' ) );
+		$occupation_id = $this->dbw->real_escape_string( self::getRequest( 'occupation_id' ) );
+		$occupation = $this->dbw->real_escape_string( self::getRequest( 'occupation' ) );
+		$page_name = $this->dbw->real_escape_string( self::getRequest( 'page_name' ) );
+		$correct = intval( self::getRequest( 'correct', -1 ) );
+		$user_id = intval( self::getRequest( 'user_id', 0 ) );
+		$source = $this->dbw->real_escape_string( self::getRequest( 'source' ) );
 
 		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
 			$host = $this->dbw->real_escape_string( parse_url( $_SERVER['HTTP_REFERER'], PHP_URL_HOST ) );
@@ -99,10 +99,10 @@ class WikiGrokApi {
 	public function handleRequest() {
 		if ( $this->action === 'record_answer' ) {
 			// FIXME: Handle other kinds of claim recording
-			recordOccupationAnswer();
+			$this->recordOccupationAnswer();
 		} else {
 			// Handle all the 'get' actions
-			$item = intval( getRequest( 'item' , 0 ) );
+			$item = intval( self::getRequest( 'item' , 0 ) );
 			if ( $item ) {
 				switch ( $this->action ) {
 					case 'get_potential_occupations':
@@ -128,7 +128,7 @@ class WikiGrokApi {
 		//header('Content-type: text/plain'); // for testing
 
 		$json = json_encode( $this->out );
-		$callback = getRequest( 'callback' );
+		$callback = self::getRequest( 'callback' );
 
 		// Use callback if JSONP request
 		if ( $callback ) { 
