@@ -109,7 +109,7 @@ class WikiGrokApi {
 						$this->out['occupations'] = $this->getPotentialClaims( $item, 'occupation', 'potential_occupation' );
 						break;
 					case 'get_potential_nationality':
-						$this->out['occupations'] = $this->getPotentialClaims( $item, 'nationality', 'potential_nationality' );
+						$this->out['nationality'] = $this->getPotentialClaims( $item, 'nationality', 'potential_nationality' );
 						break;
 					default:
 						$this->out['status'] = "Unknown action " . $this->action;
