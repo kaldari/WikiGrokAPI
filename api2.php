@@ -78,13 +78,13 @@ class WikiGrokApi {
 		return $x ? $x[0] : false;
 	}
 
-	protected function recordOccupationAnswer() {
+	protected function recordAnswer() {
 		$subject_id = $this->dbw->real_escape_string( self::getRequest( 'subject_id' ) );
 		$subject = $this->dbw->real_escape_string( self::getRequest( 'subject' ) );
-		$claim_property_id = 'P106';
-		$claim_property = 'occupation';
-		$occupation_id = $this->dbw->real_escape_string( self::getRequest( 'occupation_id' ) );
-		$occupation = $this->dbw->real_escape_string( self::getRequest( 'occupation' ) );
+		$claim_property_id = $this->dbw->real_escape_string( self::getRequest( 'claim_property_id' ) );
+		$claim_property = $this->dbw->real_escape_string( self::getRequest( 'claim_property' ) );
+		$claim_value_id = $this->dbw->real_escape_string( self::getRequest( 'claim_value_id' ) );
+		$claim_value = $this->dbw->real_escape_string( self::getRequest( 'claim_value' ) );
 		$page_name = $this->dbw->real_escape_string( self::getRequest( 'page_name' ) );
 		$correct = intval( self::getRequest( 'correct', -1 ) );
 		$user_id = intval( self::getRequest( 'user_id', 0 ) );
@@ -97,7 +97,7 @@ class WikiGrokApi {
 		}
 
 		if ( $subject_id && $occupation_id && ( $correct === 0 || $correct === 1 ) ) {
-			$sql = "INSERT INTO `claim_log` (`subject_id`, `subject`, `claim_property_id`, `claim_property`, `claim_value_id`, `claim_value`, `page_name`, `correct`, `user_id`, `source`, `host`, `timestamp`) VALUES ('$subject_id', '$subject', '$claim_property_id', '$claim_property', '$occupation_id', '$occupation', '$page_name', $correct, $user_id, '$source', '$host', CURRENT_TIMESTAMP)";
+			$sql = "INSERT INTO `claim_log` (`subject_id`, `subject`, `claim_property_id`, `claim_property`, `claim_value_id`, `claim_value`, `page_name`, `correct`, `user_id`, `source`, `host`, `timestamp`) VALUES ('$subject_id', '$subject', '$claim_property_id', '$claim_property', '$claim_value_id', '$claim_value', '$page_name', $correct, $user_id, '$source', '$host', CURRENT_TIMESTAMP)";
 			$result = $this->dbw->query( $sql );
 			if ( !$result ) die( 'There was an error running the query [' . $this->dbw->error . '] '.$sql );
 		}
@@ -105,8 +105,7 @@ class WikiGrokApi {
 
 	public function handleRequest() {
 		if ( $this->action === 'record_answer' ) {
-			// FIXME: Handle other kinds of claim recording
-			$this->recordOccupationAnswer();
+			$this->recordAnswer();
 		} else {
 			// Handle all the 'get' actions
 			$item = self::getRequest( 'item' , 0 );
