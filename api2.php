@@ -81,25 +81,26 @@ class WikiGrokApi {
 	protected function recordAnswer() {
 		$subject_id = $this->dbw->real_escape_string( self::getRequest( 'subject_id' ) );
 		$subject = $this->dbw->real_escape_string( self::getRequest( 'subject' ) );
-		$claim_property_id = $this->dbw->real_escape_string( self::getRequest( 'claim_property_id' ) );
-		$claim_property = $this->dbw->real_escape_string( self::getRequest( 'claim_property' ) );
-		$claim_value_id = $this->dbw->real_escape_string( self::getRequest( 'claim_value_id' ) );
-		$claim_value = $this->dbw->real_escape_string( self::getRequest( 'claim_value' ) );
 		$page_name = $this->dbw->real_escape_string( self::getRequest( 'page_name' ) );
-		$correct = intval( self::getRequest( 'correct', -1 ) );
 		$user_id = intval( self::getRequest( 'user_id', 0 ) );
 		$source = $this->dbw->real_escape_string( self::getRequest( 'source' ) );
-
 		if ( isset( $_SERVER['HTTP_REFERER'] ) ) {
 			$host = $this->dbw->real_escape_string( parse_url( $_SERVER['HTTP_REFERER'], PHP_URL_HOST ) );
 		} else {
 			$host = 'none';
 		}
-
-		if ( $subject_id && $occupation_id && ( $correct === 0 || $correct === 1 ) ) {
-			$sql = "INSERT INTO `claim_log` (`subject_id`, `subject`, `claim_property_id`, `claim_property`, `claim_value_id`, `claim_value`, `page_name`, `correct`, `user_id`, `source`, `host`, `timestamp`) VALUES ('$subject_id', '$subject', '$claim_property_id', '$claim_property', '$claim_value_id', '$claim_value', '$page_name', $correct, $user_id, '$source', '$host', CURRENT_TIMESTAMP)";
-			$result = $this->dbw->query( $sql );
-			if ( !$result ) die( 'There was an error running the query [' . $this->dbw->error . '] '.$sql );
+		$claims = json_decode( urldecode( self::getRequest( 'claims' ) ) );
+		if ( $subject_id && $claims ) {
+			foreach ( $claims as $claim ) {
+				$claim_property_id = $this->dbw->real_escape_string( $claim['propid'] );
+				$claim_property = $this->dbw->real_escape_string( $claim['prop'] );
+				$claim_value_id = $this->dbw->real_escape_string( $claim['valueid'] );
+				$claim_value = $this->dbw->real_escape_string( $claim['value'] );
+				$correct = $claim['correct'] ? intval( $claim['correct'] ) : 1;
+				$sql = "INSERT INTO `claim_log` (`subject_id`, `subject`, `claim_property_id`, `claim_property`, `claim_value_id`, `claim_value`, `page_name`, `correct`, `user_id`, `source`, `host`, `timestamp`) VALUES ('$subject_id', '$subject', '$claim_property_id', '$claim_property', '$claim_value_id', '$claim_value', '$page_name', $correct, $user_id, '$source', '$host', CURRENT_TIMESTAMP)";
+				$result = $this->dbw->query( $sql );
+				if ( !$result ) die( 'There was an error running the query [' . $this->dbw->error . '] '.$sql );
+			}
 		}
 	}
 
