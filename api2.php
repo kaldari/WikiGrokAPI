@@ -101,6 +101,8 @@ class WikiGrokApi {
 				$result = $this->dbw->query( $sql );
 				if ( !$result ) die( 'There was an error running the query [' . $this->dbw->error . '] '.$sql );
 			}
+		} else {
+			$this->out['status'] = "Incomplete data";
 		}
 	}
 

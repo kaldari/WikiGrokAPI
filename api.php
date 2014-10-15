@@ -100,6 +100,8 @@ class WikiGrokApi {
 			$sql = "INSERT INTO `claim_log` (`subject_id`, `subject`, `claim_property_id`, `claim_property`, `claim_value_id`, `claim_value`, `page_name`, `correct`, `user_id`, `source`, `host`, `timestamp`) VALUES ('$subject_id', '$subject', '$claim_property_id', '$claim_property', '$occupation_id', '$occupation', '$page_name', $correct, $user_id, '$source', '$host', CURRENT_TIMESTAMP)";
 			$result = $this->dbw->query( $sql );
 			if ( !$result ) die( 'There was an error running the query [' . $this->dbw->error . '] '.$sql );
+		} else {
+			$this->out['status'] = "Incomplete data";
 		}
 	}
 
