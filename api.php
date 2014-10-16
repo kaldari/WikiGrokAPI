@@ -86,7 +86,8 @@ class WikiGrokApi {
 		$occupation_id = $this->dbw->real_escape_string( self::getRequest( 'occupation_id' ) );
 		$occupation = $this->dbw->real_escape_string( self::getRequest( 'occupation' ) );
 		$page_name = $this->dbw->real_escape_string( self::getRequest( 'page_name' ) );
-		$correct = intval( self::getRequest( 'correct', 1 ) );
+		$correct = self::getRequest( 'correct', 1 );
+		$correct = $correct ? 1 : 0;
 		$user_id = intval( self::getRequest( 'user_id', 0 ) );
 		$source = $this->dbw->real_escape_string( self::getRequest( 'source' ) );
 
