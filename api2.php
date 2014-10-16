@@ -71,7 +71,7 @@ class WikiGrokApi {
 		// YES: The suggested claims are correct and have been recorded in Wikidata
 		// NO: None of the suggested claims are correct
 		// DONE: Claims have been set for this item in WikiData via WikiData Game
-		$sql = "SELECT $field FROM $table WHERE status IS NULL OR status != 'DEL' AND item = $item LIMIT 1";
+		$sql = "SELECT $field FROM $table WHERE (status IS NULL OR status != 'DEL') AND item = $item LIMIT 1";
 		$result = $this->dbr->query( $sql );
 		if ( !$result ) die( 'There was an error running the query [' . $this->dbr->error . '] '.$sql );
 		$x = $result->fetch_array();
