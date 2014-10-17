@@ -7,6 +7,8 @@ ini_set( 'memory_limit', '200M' );
 require_once( '../config.inc.php' );
 
 class WikiGrokApi {
+	/** @var int version to use */
+	protected $version;
 
 	/** @var mysqli Connection to database storing candidate information (for reading) */
 	protected $dbr;
@@ -22,7 +24,7 @@ class WikiGrokApi {
 
 	public function __construct() {
 		global $candidatesdb, $wikigrokdb;
-
+		$this->version = intval( self::getRequest( 'version', '1' ) );
 		$this->action = self::getRequest( 'action' );
 		// Initialize read database connection
 		$this->dbr = new mysqli(
@@ -51,6 +53,26 @@ class WikiGrokApi {
 	public static function getRequest( $key, $default = '' ) {
 		if ( isset ( $_REQUEST[$key] ) ) return str_replace( "\'" , "'" , $_REQUEST[$key] );
 		return $default;
+	}
+
+	/**
+	 * Generic method for retrieving potential claims from candidate database
+	 * @param int $item The Wikidata ID for the person (without Q)
+	 * @param string $field Name of the database field containing the potential claims
+	 * @param string $table Name of the database table containing the potential claims
+	 * @return array An array for ids for items in Wikidata (with Q)
+	 */
+	protected function getPotentialClaimsList( $item, $field, $table ) {
+		$str = $this->getPotentialClaims( $item, $field, $table );
+		if ( $str ) {
+			$list = explode( ',', $str );
+			foreach( $list as $key => $item ) {
+				$list[$key] = 'Q' . $item;
+			}
+			return $list;
+		} else {
+			return array();
+		}
 	}
 
 	/**
@@ -115,10 +137,42 @@ class WikiGrokApi {
 			if ( $item ) {
 				switch ( $this->action ) {
 					case 'get_potential_occupations':
-						$this->out['occupations'] = $this->getPotentialClaims( $item, 'occupation', 'potential_occupation' );
+						if ( $this->version === 1 ) {
+							$this->out['occupations'] = $this->getPotentialClaims( $item, 'occupation', 'potential_occupation' );
+						} else {
+							$this->out['occupations'] = $this->getPotentialClaimsList( $item, 'occupation', 'potential_occupation' );
+						}
 						break;
 					case 'get_potential_nationality':
-						$this->out['nationality'] = $this->getPotentialClaims( $item, 'nationality', 'potential_nationality' );
+						if ( $this->version === 1 ) {
+							$this->out['nationality'] = $this->getPotentialClaims( $item, 'nationality', 'potential_nationality' );
+						} else {
+							$this->out['nationality'] = $this->getPotentialClaimsList( $item, 'nationality', 'potential_nationality' );
+						}
+						break;
+					case 'get_suggestions':
+						$this->out['suggestions'] = array(
+							'occupations' => array(
+								'id' => 'P106',
+								'name' => 'occupations',
+								'list' => $this->getPotentialClaimsList( $item, 'occupation', 'potential_occupation' ),
+							),
+							'nationalities' => array(
+								'id' => 'P27',
+								'name' => 'nationality',
+								'list' => $this->getPotentialClaimsList( $item, 'nationality', 'potential_nationality' ),
+							),
+							'dob' => array(
+								'id' => 'P569',
+								'name' => 'date of birth',
+								'list' => array(),
+							),
+							'dod' => array(
+								'id' => 'P570',
+								'name' => 'date of death',
+								'list' => array(),
+							),
+						);
 						break;
 					default:
 						$this->out['status'] = "Unknown action " . $this->action;
