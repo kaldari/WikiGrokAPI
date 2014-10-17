@@ -92,11 +92,11 @@ class WikiGrokApi {
 		$claims = json_decode( urldecode( self::getRequest( 'claims' ) ) );
 		if ( $subject_id && $claims ) {
 			foreach ( $claims as $claim ) {
-				$claim_property_id = $this->dbw->real_escape_string( $claim['propid'] );
-				$claim_property = $this->dbw->real_escape_string( $claim['prop'] );
-				$claim_value_id = $this->dbw->real_escape_string( $claim['valueid'] );
-				$claim_value = $this->dbw->real_escape_string( $claim['value'] );
-				$correct = $claim['correct'] ? 1 : 0;
+				$claim_property_id = $this->dbw->real_escape_string( $claim->propid );
+				$claim_property = $this->dbw->real_escape_string( $claim->prop );
+				$claim_value_id = $this->dbw->real_escape_string( $claim->valueid );
+				$claim_value = $this->dbw->real_escape_string( $claim->value );
+				$correct = $claim->correct ? 1 : 0;
 				$sql = "INSERT INTO `claim_log` (`subject_id`, `subject`, `claim_property_id`, `claim_property`, `claim_value_id`, `claim_value`, `page_name`, `correct`, `user_id`, `source`, `host`, `timestamp`) VALUES ('$subject_id', '$subject', '$claim_property_id', '$claim_property', '$claim_value_id', '$claim_value', '$page_name', $correct, $user_id, '$source', '$host', CURRENT_TIMESTAMP)";
 				$result = $this->dbw->query( $sql );
 				if ( !$result ) die( 'There was an error running the query [' . $this->dbw->error . '] '.$sql );
