@@ -137,18 +137,10 @@ class WikiGrokApi {
 			if ( $item ) {
 				switch ( $this->action ) {
 					case 'get_potential_occupations':
-						if ( $this->version === 1 ) {
-							$this->out['occupations'] = $this->getPotentialClaims( $item, 'occupation', 'potential_occupation' );
-						} else {
-							$this->out['occupations'] = $this->getPotentialClaimsList( $item, 'occupation', 'potential_occupation' );
-						}
+						$this->out['occupations'] = $this->getPotentialClaimsList( $item, 'occupation', 'potential_occupation' );
 						break;
 					case 'get_potential_nationality':
-						if ( $this->version === 1 ) {
-							$this->out['nationality'] = $this->getPotentialClaims( $item, 'nationality', 'potential_nationality' );
-						} else {
-							$this->out['nationality'] = $this->getPotentialClaimsList( $item, 'nationality', 'potential_nationality' );
-						}
+						$this->out['nationality'] = $this->getPotentialClaimsList( $item, 'nationality', 'potential_nationality' );
 						break;
 					case 'get_suggestions':
 						$this->out['suggestions'] = array(
