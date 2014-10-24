@@ -4,7 +4,7 @@
 error_reporting( E_ALL );
 ini_set( 'display_errors', 1 );
 ini_set( 'max_execution_time', 2000 );
-ini_set( 'memory_limit', '200M' );
+ini_set( 'memory_limit', '400M' );
 require_once( '../../config.inc.php' );
 
 define( 'BASE_WDQ_URL', 'http://wdq.wmflabs.org/api' );
