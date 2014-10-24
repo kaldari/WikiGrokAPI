@@ -154,6 +154,7 @@ class WikiGrokApi {
 								'name' => 'nationality',
 								'list' => $this->getPotentialClaimsList( $item, 'nationality', 'potential_nationality' ),
 							),
+							/*
 							'dob' => array(
 								'id' => 'P569',
 								'name' => 'date of birth',
@@ -164,6 +165,7 @@ class WikiGrokApi {
 								'name' => 'date of death',
 								'list' => array(),
 							),
+							*/
 						);
 						break;
 					default:
