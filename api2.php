@@ -157,12 +157,12 @@ class WikiGrokApi {
 							'dob' => array(
 								'id' => 'P569',
 								'name' => 'date of birth',
-								'list' => $this->getPotentialClaimsList( $item, 'item', 'people_no_date' ),
+								'list' => $this->getPotentialClaimsList( $item, 'item', 'people_no_dob' ),
 							),
 							'dod' => array(
 								'id' => 'P570',
 								'name' => 'date of death',
-								'list' => $this->getPotentialClaimsList( $item, 'item', 'people_no_date' ),
+								'list' => $this->getPotentialClaimsList( $item, 'item', 'people_no_dod' ),
 							),
 						);
 						break;
