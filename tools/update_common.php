@@ -3,6 +3,16 @@
 require_once( '/data/project/wikidata-game/public_html/php/common.php' );
 require_once( '/data/project/wikigrok/config.inc.php' );
 
+function getItemsFromWikidataQuery( $query ) {
+	global $wdq_internal_url;
+
+	$url = $wdq_internal_url . '?q=' . urlencode( $query );
+	$rawResponseBody = file_get_contents( $url );
+	$responseBody = json_decode( $rawResponseBody, true );
+
+	return $responseBody['items'];
+}
+
 function resolve_candidates( $candidates ) {
 	$sql = <<<SQL
 SELECT ips_item_id, ips_site_page

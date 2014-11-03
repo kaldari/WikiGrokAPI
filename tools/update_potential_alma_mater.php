@@ -2,16 +2,6 @@
 <?PHP
 require_once( 'update_common.php' );
 
-function getItemsFromWikidataQuery( $query ) {
-	global $wdq_internal_url;
-
-	$url = $wdq_internal_url . '?q=' . urlencode( $query );
-	$rawResponseBody = file_get_contents( $url );
-	$responseBody = json_decode( $rawResponseBody, true );
-
-	return $responseBody['items'];
-}
-
 function get_suggestions( $schools, $resolvedCandidates ) {
 	$titles = array_keys( $resolvedCandidates );
 	$schoolTitles = array_keys( $schools );
