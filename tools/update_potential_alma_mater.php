@@ -1,115 +1,76 @@
 #!/usr/bin/php
 <?PHP
+require_once( 'update_common.php' );
 
-error_reporting(E_ERROR|E_CORE_ERROR|E_ALL|E_COMPILE_ERROR);
-ini_set( 'display_errors', 1 );
+function getItemsFromWikidataQuery( $query ) {
+	global $wdq_internal_url;
 
-define( 'WIKIDATA_GAME_DIR', '/data/project/wikidata-game' );
-define( 'WIKIGROK_DIR', '/data/project/wikigrok' );
+	$url = $wdq_internal_url . '?q=' . urlencode( $query );
+	$rawResponseBody = file_get_contents( $url );
+	$responseBody = json_decode( $rawResponseBody, true );
 
-// WikiGame common.php
-require_once ( WIKIDATA_GAME_DIR . '/public_html/php/common.php' );
-require_once ( WIKIGROK_DIR . '/config.inc.php' );
+	return $responseBody['items'];
+}
 
-$batch_size = 10000;
-$unlikely_page_title = "vwhj9ew8h94whbviwg7vi7w";
-$db = openDB ( 'wikidata' , 'wikidata' );
-$dbu = new mysqli(
-	$candidatesdb['host'],
-	$candidatesdb['user'],
-	$candidatesdb['pass'],
-	$candidatesdb['dbname']
-);
+function get_suggestions( $schools, $resolvedCandidates ) {
+	$titles = array_keys( $resolvedCandidates );
+	$schoolTitles = array_keys( $schools );
+	$sql = <<<SQL
+SELECT page_title, pl_title
+FROM page JOIN pagelinks ON page_id = pl_from
+WHERE page_namespace = 0
+	AND pl_namespace = 0 # Both linked pages are mainspace only
+SQL;
+	$sql .= "\n AND page_title IN (\"" . implode( '","', $titles ) . '")';
+	$sql .= ' AND pl_title IN ("' . implode( '","', $schoolTitles	) . '")';
 
-$hadthat = array();
-if ( 0 ) { // Pre-filter existing items?
-	$sql = "select distinct item from potential_alma_mater";
-	$result = $dbu->query( $sql );
-	if(!$result) die('There was an error running the query 1[' . $dbu->error . '] '.$sql);
-	while( $o = $result->fetch_object() ){
-		$hadthat[$o->item] = 1;
+	$enwikiDb = openDBwiki( 'enwiki' );
+	$result = $enwikiDb->query( $sql );
+	$suggestions = array();
+
+	if ( !$result ) {
+		die( sprintf( "Couldn't run query get_suggestions: %s\n", $enwikiDb->error ) );
 	}
-}
 
-// Get schools
-$url = "$wdq_internal_url?q=" . urlencode( "CLAIM[31:3918]" );
-$j = json_decode ( file_get_contents ( $url ) );
-$sql = "select * from wb_items_per_site WHERE ips_item_id IN (" . implode ( ',' , $j->items ) . ")";
-if( !$result = $db->query( $sql ) ) die( 'There was an error running the query 1[' . $db->error . '] '.$sql );
-$schools = array();
-$schools_rev = array();
-while( $o = $result->fetch_object() ) {
-	$school = str_replace ( ' ' , '_' , $o->ips_site_page );
-	$schools[$o->ips_site_id][] = $school;
-	$schools_rev[$o->ips_site_id][$school] = $o->ips_item_id;
-}
+	while ( $row = $result->fetch_object() ) {
+		$key = $enwikiDb->real_escape_string( $row->page_title );
+		$resolvedCandidateId = $resolvedCandidates[$key];
+		$suggestionId = $schools[addslashes($row->pl_title)];
 
-// Make SQL strings
-$newArray = array();
-foreach ( $schools AS $site => $list ) {
-	$a = array();
-	foreach ( $list AS $l ) $a[] = $db->real_escape_string ( $l );
-	$newArray[$site] = '"' . implode ( '","' , $a ) . '"';
-}
-// Site:sql strings
-$schools = $newArray;
-
-print count ( $schools ) . " schools/sites found.\n";
-
-// Get people without schools
-$url = "$wdq_internal_url?q=" . urlencode( "CLAIM[31:5] AND NOCLAIM[69]" );
-$j = json_decode ( file_get_contents ( $url ) );
-shuffle ( $j->items );
-$candidates = array_slice ( $j->items , 0 , $batch_size ); // subset
-unset ( $j ); // Save space
-
-$sql = "select * from wb_items_per_site WHERE ips_item_id IN (" . implode ( ',' , $candidates ) . ")";
-if( !$result = $db->query( $sql ) ) die( 'There was an error running the query 2[' . $db->error . '] '.$sql );
-$people = array();
-while( $o = $result->fetch_object() ){
-	if ( isset ( $hadthat[$o->ips_item_id] ) ) continue; // Have those already
-	if ( preg_match ( '/:/' , $o->ips_site_page ) ) continue; // No namespace-prexied titles
-	$people[$o->ips_site_id][$o->ips_item_id] = $db->real_escape_string ( str_replace ( ' ' , '_' , $o->ips_site_page ) );
-}
-
-print count ( $people ) . " people/sites found.\n";
-
-$person2school = array();
-foreach ( $people AS $site => $list ) {
-	if ( !preg_match ( '/wiki$/' , $site ) ) continue; // Wikipedia only
-	//if ( !preg_match ( '/enwiki$/' , $site ) ) continue; // English Wikipedia only
-	if ( !isset ( $schools[$site] ) ) continue;
-	$schools_site = $schools[$site];
-	$dbw = openDBwiki ( $site );
-	if ( $dbw === false ) continue; // Can't open database
-	foreach ( $list AS $q => $title ) {
-		$sql = "SELECT * FROM page,pagelinks WHERE page_title=\"$title\" and page_namespace=0 and page_id=pl_from and pl_namespace=0 and pl_title IN ($schools_site)";
-		if( !$result = $dbw->query( $sql ) ) die( 'There was an error running the query 3[' . $db->error . '] '."$site : $sql" );
-		while( $o = $result->fetch_object() ) {
-			if ( !isset ( $schools_rev[$site][$o->pl_title] ) ) { print "Dunno $site:".$o->pl_title."\n"; continue; }
-			$person2school[$q][$schools_rev[$site][$o->pl_title]] = 1;
+		if ( !isset( $suggestions[$resolvedCandidateId] ) ) {
+			$suggestions[$resolvedCandidateId] = array();
 		}
+
+		$suggestions[$resolvedCandidateId][] = $suggestionId;
 	}
+
+	return $suggestions;
 }
 
-// Reconnect because connection is lost by the time we get to inserting suggestions
-$dbu->close();
-$dbu = new mysqli(
-	$candidatesdb['host'],
-	$candidatesdb['user'],
-	$candidatesdb['pass'],
-	$candidatesdb['dbname']
-);
+$candidateSchools = getItemsFromWikidataQuery( 'CLAIM[31:3918]' );
+echo sprintf( "%d unresolved candidate schools found. Resolving...\n", count( $candidateSchools ) );
 
-foreach ( $person2school AS $q_item => $list ) {
-	$q_target = implode ( ',' , array_keys ( $list ) );
-	$sql = "INSERT IGNORE INTO potential_alma_mater (item,alma_mater) VALUES ('$q_item','$q_target')";
-	$result = $dbu->query( $sql );
-	if( !$result ) die( 'There was an error running the query 4[' . $dbu->error . '] '."$site : $sql" );
-}
+// [Madenat_Alelem_University_College] => 6727119
+$resolvedCandidateSchools = resolve_candidates( $candidateSchools );
+echo sprintf( "Done! Resolved names for %d schools.\n", count( $resolvedCandidateSchools ) );
 
-$sql = "update potential_alma_mater set random=rand() where random is null";
-$result = $dbu->query( $sql  );
-if( !$result ) die( 'There was an error running the query 5[' . $dbu->error . '] '.$sql );
+$peopleWithoutSchools = getItemsFromWikidataQuery( 'CLAIM[31:5] AND NOCLAIM[69]' );
+echo sprintf( "%d unresolved people without schools found. Resolving...\n", count( $peopleWithoutSchools ) );
+
+// Shuffle and limit here because the sql query would be huge otherwise
+shuffle ( $peopleWithoutSchools );
+$peopleWithoutSchools = array_slice( $peopleWithoutSchools, 0, 10000 );
+
+// [Kenneth_Harkins] => 18387587
+$resolvedPeopleWithoutSchools = resolve_candidates( $peopleWithoutSchools );
+echo sprintf( "Done! Resolved names for %d people without schools.\n", count( $resolvedPeopleWithoutSchools ) );
+
+echo "Getting suggested schools for people...\n";
+$suggestions = get_suggestions( $resolvedCandidateSchools, $resolvedPeopleWithoutSchools );
+
+echo "Done! Updating WikiGrok suggestions...\n";
+update_suggestions( $suggestions, 'potential_alma_mater', 'alma_mater' );
+
+echo "Done!\n";
 
 ?>
