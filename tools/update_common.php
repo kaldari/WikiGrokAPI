@@ -1,8 +1,16 @@
 <?php
 
+/**
+ * Helper functions for the `update_foo.php` scripts.
+ */
+
 require_once( '/data/project/wikidata-game/public_html/php/common.php' );
 require_once( '/data/project/wikigrok/config.inc.php' );
 
+/**
+ * @param string $query
+ * @return array[int] The Wikidata items, specified by their IDs
+ */
 function getItemsFromWikidataQuery( $query ) {
 	global $wdq_internal_url;
 
@@ -13,6 +21,12 @@ function getItemsFromWikidataQuery( $query ) {
 	return $responseBody['items'];
 }
 
+/**
+ * Resolve candidate Wikidata items to enwiki mainspace pages.
+ *
+ * @param array[int] $candidates The Wikidata items, specified by their IDs
+ * @return array[string, int] A map of page title to Wikidata ID
+ */
 function resolve_candidates( $candidates ) {
 	$sql = <<<SQL
 SELECT ips_item_id, ips_site_page
@@ -39,6 +53,13 @@ SQL;
 	return $resolvedCandidates;
 }
 
+/**
+ * @param array[string, array[int]] $suggestions The result of
+ *  `get_genre_suggestions`
+ * @param string $tableName The name of the table to update
+ * @param string $fieldName The name of the column that holds the list of
+ *  suggestions
+ */
 function update_suggestions( $suggestions, $tableName, $fieldName ) {
 	global $candidatesdb;
 
@@ -53,7 +74,7 @@ function update_suggestions( $suggestions, $tableName, $fieldName ) {
 	$statement = $candidatesDb->prepare( $sql );
 
 	if ( !$statement ) {
-			die( sprintf( "Couldn't prepare query update_genre_suggestions: %s\n", $candidatesDb->error ) );
+			die( sprintf( "Couldn't prepare query update_suggestions: %s\n", $candidatesDb->error ) );
 	}
 
 	foreach ( $suggestions as $resolvedCandidateId => $suggestionIds ) {
