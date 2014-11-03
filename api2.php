@@ -154,6 +154,11 @@ class WikiGrokApi {
 								'name' => 'nationality',
 								'list' => $this->getPotentialClaimsList( $item, 'nationality', 'potential_nationality' ),
 							),
+							'alma_mater' => array(
+								'id' => 'P69',
+								'name' => 'alma_mater',
+								'list' => $this->getPotentialClaimsList( $item, 'alma_mater', 'potential_alma_mater' ),
+							),
 							/*
 							'dob' => array(
 								'id' => 'P569',
