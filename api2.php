@@ -154,9 +154,9 @@ class WikiGrokApi {
 								'name' => 'nationality',
 								'list' => $this->getPotentialClaimsList( $item, 'nationality', 'potential_nationality' ),
 							),
-							'alma_mater' => array(
+							'schools' => array(
 								'id' => 'P69',
-								'name' => 'alma_mater',
+								'name' => 'schools',
 								'list' => $this->getPotentialClaimsList( $item, 'alma_mater', 'potential_alma_mater' ),
 							),
 							/*
