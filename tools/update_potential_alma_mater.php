@@ -47,20 +47,30 @@ echo sprintf( "Done! Resolved names for %d schools.\n", count( $resolvedCandidat
 $peopleWithoutSchools = getItemsFromWikidataQuery( 'CLAIM[31:5] AND NOCLAIM[69]' );
 echo sprintf( "%d unresolved people without schools found. Resolving...\n", count( $peopleWithoutSchools ) );
 
-// Shuffle and limit here because the sql query would be huge otherwise
-shuffle ( $peopleWithoutSchools );
-$peopleWithoutSchools = array_slice( $peopleWithoutSchools, 0, 10000 );
+// Batch people with schools because the list is huge (2.4 million)
+$batchSize = 50000;
 
-// [Kenneth_Harkins] => 18387587
-$resolvedPeopleWithoutSchools = resolve_candidates( $peopleWithoutSchools );
-echo sprintf( "Done! Resolved names for %d people without schools.\n", count( $resolvedPeopleWithoutSchools ) );
+while ( count( $peopleWithoutSchools ) > 0 ) {
+	$peopleWithoutSchoolsBatch = array_slice( $peopleWithoutSchools, 0, $batchSize );
 
-echo "Getting suggested schools for people...\n";
-$suggestions = get_suggestions( $resolvedCandidateSchools, $resolvedPeopleWithoutSchools );
+	// Resovle people without schools in batches
+	// Array format: [Kenneth_Harkins] => 18387587
+	$resolvedPeopleWithoutSchoolsBatch = resolve_candidates( $peopleWithoutSchoolsBatch );
 
-echo "Done! Updating WikiGrok suggestions...\n";
-update_suggestions( $suggestions, 'potential_alma_mater', 'alma_mater' );
+	echo sprintf( "Done! Batch resolved names for %d people without schools.\n", count( $resolvedPeopleWithoutSchoolsBatch ) );
 
-echo "Done!\n";
+	echo "Getting suggested schools for people...\n";
+	$suggestions = get_suggestions( $resolvedCandidateSchools, $resolvedPeopleWithoutSchoolsBatch );
+
+	echo "Done! Found " . count( $suggestions ) . " sets of suggestions.  Updating WikiGrok...\n";
+	update_suggestions( $suggestions, 'potential_alma_mater', 'alma_mater' );
+
+	// Remove batched section from original array
+	$peopleWithoutSchools = array_slice( $peopleWithoutSchools, $batchSize );
+	echo "Done!\n";
+
+}
+
+echo "Finished!\n";
 
 ?>
