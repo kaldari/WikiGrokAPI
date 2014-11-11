@@ -4,8 +4,13 @@
 error_reporting( E_ALL );
 ini_set( 'display_errors', 1 );
 ini_set( 'max_execution_time', 2000 );
+<<<<<<< HEAD
 ini_set( 'memory_limit', '400M' );
 require_once( '../../config.inc.php' );
+=======
+ini_set( 'memory_limit', '200M' );
+require_once( '../config.inc.php' );
+>>>>>>> Return separate results for DOB and DOD
 
 define( 'BASE_WDQ_URL', 'http://wdq.wmflabs.org/api' );
 
