@@ -49,7 +49,10 @@ SQL;
 			$genreSuggestions[$resolvedCandidateId] = array();
 		}
 
-		$genreSuggestions[$resolvedCandidateId][] = $genreId;
+		// genre field is TINYTEXT, so limit to 30 matches
+		if ( count( $genreSuggestions[$resolvedCandidateId] ) < 30 ) {
+			$genreSuggestions[$resolvedCandidateId][] = $genreId;
+		}
 	}
 
 	return $genreSuggestions;
